@@ -9,13 +9,18 @@ import {
   UsePipes,
   ValidationPipe,
   ParseIntPipe,
+  UseGuards,
+  Req,
 } from '@nestjs/common';
 import { TasksService } from './tasks.service';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskStatusDto } from './dto/updata-task-status.dto';
 import { Task } from './task.entity';
+import { AuthGuard } from '@nestjs/passport';
+import { User } from 'src/auth/user.entity';
 
 @Controller('tasks')
+@UseGuards(AuthGuard())
 export class TasksController {
   constructor(private tasksService: TasksService) {}
 
@@ -31,8 +36,8 @@ export class TasksController {
 
   @Post()
   @UsePipes(ValidationPipe)
-  store(@Body() task: CreateTaskDto): Promise<Task> {
-    return this.tasksService.createTask(task);
+  store(@Body() task: CreateTaskDto, @Req() { user }): Promise<Task> {
+    return this.tasksService.createTask(task, user);
   }
 
   @Patch(':id/status')

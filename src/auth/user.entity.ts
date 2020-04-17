@@ -5,8 +5,10 @@ import {
   Column,
   Unique,
   BeforeInsert,
+  OneToMany,
 } from 'typeorm';
 import * as bcrypt from 'bcrypt';
+import { Task } from 'src/tasks/task.entity';
 
 @Entity()
 @Unique(['username'])
@@ -15,15 +17,21 @@ export class User extends BaseEntity {
   id: number;
 
   @Column()
-  username: string;
+  public username: string;
 
   @Column()
-  password: string;
+  public password: string;
 
   @BeforeInsert()
   async hashPassword() {
     this.password = await bcrypt.hash(this.password, 10);
   }
+
+  @OneToMany(
+    type => Task,
+    task => task.user,
+  )
+  tasks: Task[];
 
   checkPassword(password: string): Promise<boolean> {
     return bcrypt.compare(password, this.password);
